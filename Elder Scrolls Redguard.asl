@@ -8,12 +8,12 @@ state("dosbox","Steam")
    byte GameState		:	0x351690, 0x571CC0;		//1 loading/menu/cutscene 0 in game
    byte MapID			:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
    byte MarkerID		:	0x351690, 0x57319C;		//+8 from MapID
-   string20 Dialogue	:	0x351690, 0x9456;		//Shows whatever a character is speaking at the time in all caps
+   string20 Dialogue		:	0x351690, 0x9456;		//Shows whatever a character is speaking at the time in all caps
 }
 
 state("dosbox", "GoG")
 {
-	byte GameState		:	0x273014, 0x376F94;
+    byte GameState		:	0x273014, 0x376F94;
     byte MapID	 		:	0x273014, 0x376F5C;
     byte MarkerID		:	0x273014, 0x376F64;
 }
