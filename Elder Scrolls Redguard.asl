@@ -82,7 +82,7 @@ update
 
 start
 {
-	return current.MapID == 0 && current.MarkerID == 0 && current.Loading == 0 && old.Loading == 1;
+	return current.MapID == 0 && current.MarkerID == 0 && current.Loading == 128 && old.Loading == 0;
 }
 
 onStart
