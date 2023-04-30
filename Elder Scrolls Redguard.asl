@@ -11,11 +11,14 @@ state("dosbox","Steam")
    string20 Dialogue		:	0x351690, 0x9456;		//Shows whatever a character is speaking at the time in all caps
 }
 
-state("dosbox", "GoG")
+state("dosbox","GOG")
 {
-    byte GameState		:	0x273014, 0x376F94;
-    byte MapID	 		:	0x273014, 0x376F5C;
-    byte MarkerID		:	0x273014, 0x376F64;
+    byte inGame		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+    byte MapID	 		:	0x273014, 0x376F5C;		//Same as Steam
+    byte MarkerID		:	0x273014, 0x376F64;		//Same as Steam
+	byte cutscene		: "DosBox.exe", 0x273014, 0x3AB8; //6 when cutscene is playing
+	byte finalCutscene		: "DosBox.exe", 0x17086B8; //32 when final cutscene is playing (false positives during loading)
+    string20 Dialogue		:	0x273014, 0x604038;		//Same as Steam
 }
 
 
@@ -28,10 +31,15 @@ init
 		case (34119680):
 			version = "Steam";
 			break;
+		case (30728192):
+			version = "GOG";
+			break;
 		case (39788544):
-			version = "GoG";
+			version = "GOG_Original"; //Original version without Glide wrapper update. Probably not needed
 			break;
 	}
+	
+	vars.finalSplitFlag = false;
 }
 
 startup
@@ -52,11 +60,19 @@ startup
             timer.CurrentTimingMethod = TimingMethod.GameTime;
         }
     }
+	
+	//Additional splits
+	settings.Add("additionalSplits", true, "Additional Splits");
+	settings.SetToolTip("additionalSplits", "Additional optional splits");
+	
+		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSplits");
+		settings.SetToolTip("spamFinalSplit", "Once the final split triggers, it will keep triggering until the timer stops in case some splits were missed");
+		
 }
 
 update
 {
-	//print(modules.First().ModuleMemorySize.ToString());
+	// print(modules.First().ModuleMemorySize.ToString());
 	
 	if(timer.CurrentPhase == TimerPhase.NotRunning)
 	{
@@ -66,17 +82,45 @@ update
 
 start
 {
-	return current.MapID == 0 && current.MarkerID == 0 && current.Loading == 0 && old.Loading == 1;
+	if (version == "Steam")
+		return current.MapID == 0 && current.MarkerID == 0 && current.GameState == 0 && old.GameState == 1;
+	else if (version == "GOG")
+		return current.MapID == 0 && current.MarkerID == 0 && current.inGame == 128 && old.inGame == 0;
+}
+
+onStart
+{
+	vars.finalSplitFlag = false;
 }
 
 isLoading
 {
-	return current.GameState == 1;
+	if (version == "Steam")
+		return current.GameState == 1;
+	else if (version == "GOG")
+		return current.inGame == 0;
 }
 
 split
 {
+	//if (version == "Steam")
+	//else if (version == "GOG")
+	
+	if (version == "GOG")
+	{
+		// if a cutscene is playing and the final cutscene is marked
+		if((current.cutscene == 6) && (current.finalCutscene == 32) && !vars.finalSplitFlag)
+		{
+			if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
+			return true;
+		}
+	}
+}
 
+onReset
+{
+	// initialize variables
+	vars.finalSplitFlag = false;
 }
 
 exit
