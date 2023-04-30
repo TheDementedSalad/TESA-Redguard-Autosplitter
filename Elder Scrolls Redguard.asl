@@ -5,7 +5,7 @@
 
 state("dosbox","Steam")
 {
-   byte GameState		:	0x351690, 0x571CC0;		//1 loading/menu/cutscene 0 in game
+   byte Loading		  	:	0x351690, 0x57B401;		//128 not loading 0 loading
    byte MapID			:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
    byte MarkerID		:	0x351690, 0x57319C;		//+8 from MapID
    string20 Dialogue		:	0x351690, 0x9456;		//Shows whatever a character is speaking at the time in all caps
@@ -13,11 +13,11 @@ state("dosbox","Steam")
 
 state("dosbox","GOG")
 {
-    byte inGame		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+    byte Loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
     byte MapID	 		:	0x273014, 0x376F5C;		//Same as Steam
     byte MarkerID		:	0x273014, 0x376F64;		//Same as Steam
-	byte cutscene		: "DosBox.exe", 0x273014, 0x3AB8; //6 when cutscene is playing
-	byte finalCutscene		: "DosBox.exe", 0x17086B8; //32 when final cutscene is playing (false positives during loading)
+    byte cutscene		: 	0x273014, 0x3AB8; //6 when cutscene is playing
+    byte finalCutscene		: 	0x17086B8; //32 when final cutscene is playing (false positives during loading)
     string20 Dialogue		:	0x273014, 0x604038;		//Same as Steam
 }
 
@@ -82,10 +82,7 @@ update
 
 start
 {
-	if (version == "Steam")
-		return current.MapID == 0 && current.MarkerID == 0 && current.GameState == 0 && old.GameState == 1;
-	else if (version == "GOG")
-		return current.MapID == 0 && current.MarkerID == 0 && current.inGame == 128 && old.inGame == 0;
+	return current.MapID == 0 && current.MarkerID == 0 && current.Loading == 0 && old.Loading == 1;
 }
 
 onStart
@@ -95,10 +92,7 @@ onStart
 
 isLoading
 {
-	if (version == "Steam")
-		return current.GameState == 1;
-	else if (version == "GOG")
-		return current.inGame == 0;
+	return current.Loading == 1;
 }
 
 split
