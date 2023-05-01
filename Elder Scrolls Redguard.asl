@@ -92,7 +92,7 @@ onStart
 
 isLoading
 {
-	return current.Loading == 1;
+	return current.Loading == 0;
 }
 
 split
