@@ -1,26 +1,32 @@
 //The Elder Scrolls Adventure: Redguard Autosplitter V1.0.0 (30/04/2023)
 //Script by TheDementedSalad & SabulineHorizon
-//Steam Pointers found by TheDementedSalad
-//GoG Pointers found by SabulineHorizon
 
 state("dosbox","Steam")
 {
-   byte Loading		  	:	0x351690, 0x57B401;		//128 not loading 0 loading
-   byte MapID			:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
-   byte MarkerID		:	0x351690, 0x57319C;		//+8 from MapID
+   byte loading		  	:	0x351690, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
+   byte mapID			:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
+   byte markerID		:	0x351690, 0x57319C;		//+8 from mapID
+   uint finalCutscene		: 	0x191B068;		//85788928 when final cutscene is playing (there might be false positives during loading)
    string20 Dialogue		:	0x351690, 0x9456;		//Shows whatever a character is speaking at the time in all caps
 }
 
 state("dosbox","GOG")
 {
-    byte Loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
-    byte MapID	 		:	0x273014, 0x376F5C;		//Same as Steam
-    byte MarkerID		:	0x273014, 0x376F64;		//Same as Steam
-    byte cutscene		: 	0x273014, 0x3AB8; //6 when cutscene is playing
-    byte finalCutscene		: 	0x17086B8; //32 when final cutscene is playing (false positives during loading)
-    string20 Dialogue		:	0x273014, 0x604038;		//Same as Steam
+    byte loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+    byte mapID	 		:	0x273014, 0x376F5C;		//1 starting town, 4 goblin cave
+    byte markerID		:	0x273014, 0x376F64;		//+8 from mapID
+    uint finalCutscene		: 	0x1709754;		//2155905152 when final cutscene is playing (there might be false positives during loading)
+    string20 Dialogue		:	0x273014, 0x604038;		//Shows whatever a character is speaking at the time in all caps
 }
 
+state("dosbox","GOG_Original")
+{
+    byte loading		:	0x4B34B4, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+    byte mapID	 		:	0x4B34B4, 0x376F5C;		//1 starting town, 4 goblin cave
+    byte markerID		:	0x4B34B4, 0x376F64;		//+8 from mapID
+    uint finalCutscene		: 	0x1949B40;		//2155905152 when final cutscene is playing (there might be false positives during loading)
+    string20 Dialogue		:	0x4B34B4, 0x604038;		//Shows whatever a character is speaking at the time in all caps
+}
 
 init
 {
@@ -40,6 +46,8 @@ init
 	}
 	
 	vars.finalSplitFlag = false;
+	vars.canStart = false;
+	vars.canReset = false;
 }
 
 startup
@@ -78,43 +86,63 @@ update
 	{
 		vars.completedSplits.Clear();
 	}
+	
+	//avoids false starts when resetting at the beginning
+	if(current.mapID == 255)
+		vars.canStart = true;
+	//avoids resets when first loading game after crash (some crash resets still slip through, not sure)
+	if(old.loading == 0 && current.loading == 128)
+		vars.canReset = true;
+	
+	// if(current.mapID != old.mapID)
+		// print("mapID: " + current.mapID.ToString());
+	// if(current.loading != old.loading)
+		// print("loading: " + current.loading.ToString());
 }
 
 start
 {
-	return current.MapID == 0 && current.MarkerID == 0 && current.Loading == 128 && old.Loading == 0;
+	return current.mapID == 0 && current.loading == 128 && old.loading == 0 && vars.canStart;
 }
 
 onStart
 {
+	//initialize variables
 	vars.finalSplitFlag = false;
+	vars.canStart = false;
 }
 
 isLoading
 {
-	return current.Loading == 0;
+	return current.loading == 0;
 }
 
 split
 {
-	//if (version == "Steam")
-	//else if (version == "GOG")
-	
-	if (version == "GOG")
+	//end split only for now, need to add some mid-run splits
+	if (version == "Steam" && !vars.finalSplitFlag)
 	{
-		// if a cutscene is playing and the final cutscene is marked
-		if((current.cutscene == 6) && (current.finalCutscene == 32) && !vars.finalSplitFlag)
-		{
-			if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
-			return true;
-		}
+		if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
+		return ((current.finalCutscene == 85788928) && (current.loading == 128) && (current.mapID == 30));
 	}
+	else if ((version == "GOG" || version == "GOG_Original") && !vars.finalSplitFlag)
+	{
+		if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
+		return ((current.finalCutscene == 2155905152) && (current.loading == 128) && (current.mapID == 30));
+	}
+}
+
+reset
+{
+	//resets if mapID is initialized after gameplay has started
+	return old.mapID != 255 && current.mapID == 255 && vars.canReset;
 }
 
 onReset
 {
-	// initialize variables
+	//initialize variables
 	vars.finalSplitFlag = false;
+	vars.canStart = false;
 }
 
 exit
