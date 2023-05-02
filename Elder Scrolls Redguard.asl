@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter V1.0.0 (30/04/2023)
+//The Elder Scrolls Adventure: Redguard Autosplitter V1.0.1 (02/05/2023)
 //Script by TheDementedSalad & SabulineHorizon
 
 state("dosbox","Steam")
@@ -6,8 +6,8 @@ state("dosbox","Steam")
    byte loading		  	:	0x351690, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
    byte mapID			:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
    byte markerID		:	0x351690, 0x57319C;		//+8 from mapID
-   uint finalCutscene		: 	0x191B068;		//85788928 when final cutscene is playing (there might be false positives during loading)
    string20 Dialogue		:	0x351690, 0x9456;		//Shows whatever a character is speaking at the time in all caps
+   uint finalCutscene		: 	0x191B068;			//85788928 when final cutscene is playing (there might be false positives during loading)
 }
 
 state("dosbox","GOG")
@@ -15,8 +15,8 @@ state("dosbox","GOG")
     byte loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
     byte mapID	 		:	0x273014, 0x376F5C;		//1 starting town, 4 goblin cave
     byte markerID		:	0x273014, 0x376F64;		//+8 from mapID
-    uint finalCutscene		: 	0x1709754;		//2155905152 when final cutscene is playing (there might be false positives during loading)
     string20 Dialogue		:	0x273014, 0x604038;		//Shows whatever a character is speaking at the time in all caps
+    uint finalCutscene		: 	0x1709754;			//2155905152 when final cutscene is playing (there might be false positives during loading)
 }
 
 state("dosbox","GOG_Original")
@@ -24,8 +24,8 @@ state("dosbox","GOG_Original")
     byte loading		:	0x4B34B4, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
     byte mapID	 		:	0x4B34B4, 0x376F5C;		//1 starting town, 4 goblin cave
     byte markerID		:	0x4B34B4, 0x376F64;		//+8 from mapID
-    uint finalCutscene		: 	0x1949B40;		//2155905152 when final cutscene is playing (there might be false positives during loading)
     string20 Dialogue		:	0x4B34B4, 0x604038;		//Shows whatever a character is speaking at the time in all caps
+    uint finalCutscene		: 	0x1949B40;			//2155905152 when final cutscene is playing (there might be false positives during loading)
 }
 
 init
@@ -53,7 +53,7 @@ init
 startup
 {
 	// Asks user to change to game time if LiveSplit is currently set to Real Time.
-		if (timer.CurrentTimingMethod == TimingMethod.RealTime)
+	if (timer.CurrentTimingMethod == TimingMethod.RealTime)
     {        
         var timingMessage = MessageBox.Show (
             "This game uses a Load Remover as the main timing method.\n"+
@@ -93,11 +93,6 @@ update
 	//avoids resets when first loading game after crash (some crash resets still slip through, not sure)
 	if(old.loading == 0 && current.loading == 128)
 		vars.canReset = true;
-	
-	// if(current.mapID != old.mapID)
-		// print("mapID: " + current.mapID.ToString());
-	// if(current.loading != old.loading)
-		// print("loading: " + current.loading.ToString());
 }
 
 start
