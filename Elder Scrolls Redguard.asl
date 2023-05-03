@@ -8,6 +8,7 @@ state("dosbox","Steam")
    byte markerID		:	0x351690, 0x57319C;		//+8 from mapID
    string20 dialogue1		:	0x351690, 0x9456;		//Various descriptions and exclamations
    string20 dialogue2		:	0x351690, 0x589BD4;		//Selected text during dialogue
+   string30 interact		:	0x351690, 0x57B500;		//Text that appears for interacting with items
    uint finalCutscene		: 	0x191B068;			//85788928 when final cutscene is playing (there might be false positives during loading)
 }
 
@@ -18,6 +19,7 @@ state("dosbox","GOG")
     byte markerID		:	0x273014, 0x376F64;		//+8 from mapID
     string20 dialogue1		:	0x273014, 0x604038;		//Various descriptions and exclamations
     string20 dialogue2		:	0x273014, 0x3C95A8;		//Selected text during dialogue
+    string30 interact		:	0x273014, 0x3D3DB8;		//Text that appears for interacting with items
     uint finalCutscene		: 	0x1709754;			//2155905152 when final cutscene is playing (there might be false positives during loading)
 }
 
@@ -28,6 +30,7 @@ state("dosbox","GOG_Original")
     byte markerID		:	0x4B34B4, 0x376F64;		//+8 from mapID
     string20 dialogue1		:	0x4B34B4, 0x604038;		//Various descriptions and exclamations
     string20 dialogue2		:	0x4B34B4, 0x3C95A8;		//Selected text during dialogue
+    string30 interact		:	0x4B34B4, 0x3D3DB8;		//Text that appears for interacting with items
     uint finalCutscene		: 	0x1949B40;			//2155905152 when final cutscene is playing (there might be false positives during loading)
 }
 
@@ -57,14 +60,14 @@ startup
 {
 	// Asks user to change to game time if LiveSplit is currently set to Real Time.
 	if (timer.CurrentTimingMethod == TimingMethod.RealTime)
-    {
-        var timingMessage = MessageBox.Show (
-            "This game uses a Load Remover as the main timing method.\n"+
-            "LiveSplit is currently set to show Real Time (RTA).\n"+
-            "Would you like to set the timing method to Game Time?",
-            "LiveSplit | TESARedguard",
-            MessageBoxButtons.YesNo,MessageBoxIcon.Question
-        );
+	{
+		var timingMessage = MessageBox.Show (
+		"This game uses a Load Remover as the main timing method.\n"+
+		"LiveSplit is currently set to show Real Time (RTA).\n"+
+		"Would you like to set the timing method to Game Time?",
+		"LiveSplit | TESARedguard",
+		MessageBoxButtons.YesNo,MessageBoxIcon.Question
+	);
 
         if (timingMessage == DialogResult.Yes)
         {
@@ -109,17 +112,17 @@ startup
 		settings.Add("soulSplit", true, "Iszara's Soul", "mainSplits");
 		settings.SetToolTip("soulSplit", "This should work but hasn't been fully tested yet");
 		
-		settings.Add("silverKeySplit", false, "Silver Key (doesn't work yet)", "mainSplits");
-		settings.SetToolTip("silverKeySplit", "This split doesn't currently work, needs to be finished");
+		settings.Add("silverKeySplit", true, "Silver Key", "mainSplits");
+		settings.SetToolTip("silverKeySplit", "This should work but hasn't been fully tested yet");
 		
 		settings.Add("courtyardSplit", true, "Palace Courtyard", "mainSplits");
 		settings.SetToolTip("courtyardSplit", "This should work but hasn't been fully tested yet");
 		
-	//Additional splits
-	settings.Add("additionalSplits", true, "Additional Splits");
-	settings.SetToolTip("additionalSplits", "Additional optional splits");
+	//Additional settings
+	settings.Add("additionalSettings", true, "Additional Settings");
+	settings.SetToolTip("additionalSettings", "Additional settings");
 	
-		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSplits");
+		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSettings");
 		settings.SetToolTip("spamFinalSplit", "Once the final split triggers, it will keep triggering until the timer stops in case some splits were missed");
 }
 
@@ -138,6 +141,11 @@ update
 	//avoids resets when first loading game after crash (some crash resets still slip through, not sure)
 	if(old.loading == 0 && current.loading == 128)
 		vars.canReset = true;
+	
+	//use TryParse() to filter out health values and put strings into a comparison variable
+	int num;
+	if(!int.TryParse(old.interact, out num))
+		vars.oldInteract = old.interact;
 }
 
 start
@@ -244,7 +252,11 @@ split
 			settings["soulSplit"]) ||
 			
 				//Silver Key
-			//No split yet, need to create one
+			((old.interact != current.interact) &&
+			(vars.oldInteract == "GET KEY") &&
+			(current.interact == "inventory_object_file[10]") &&
+			(current.mapID == 2) &&
+			settings["silverKeySplit"]) ||
 			
 				//Palace Courtyard
 			((old.mapID == 1) &&
@@ -265,7 +277,6 @@ onReset
 {
 	//initialize variables
 	vars.finalSplitFlag = false;
-	// vars.canStart = false;
 }
 
 exit
