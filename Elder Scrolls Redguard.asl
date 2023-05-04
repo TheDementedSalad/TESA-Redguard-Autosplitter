@@ -1,37 +1,53 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter V1.0.2 (03/05/2023)
+//The Elder Scrolls Adventure: Redguard Autosplitter V1.1.0 May 4 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 state("dosbox","Steam")
 {
-   byte loading		  	:	0x351690, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
-   byte mapID			:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
-   byte markerID		:	0x351690, 0x57319C;		//+8 from mapID
-   string20 dialogue1		:	0x351690, 0x9456;		//Various descriptions and exclamations
-   string20 dialogue2		:	0x351690, 0x589BD4;		//Selected text during dialogue
-   string30 interact		:	0x351690, 0x57B500;		//Text that appears for interacting with items
-   uint finalCutscene		: 	0x191B068;			//85788928 when final cutscene is playing (there might be false positives during loading)
+	byte loading		:	0x351690, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
+	byte mapID		:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
+	byte markerID		:	0x351690, 0x57319C;		//+8 from mapID
+	string20 dialogue1	:	0x351690, 0x9456;		//Various descriptions and exclamations
+	string20 dialogue2	:	0x351690, 0x589BD4;		//Selected text during dialogue
+	string30 interact	:	0x351690, 0x57B500;		//Text that appears for interacting with items
+	string8 finalCutscene	: 	0x17CEDF0;			//"AH!" when final cutscene is playing
+	
+	byte menuIndex		:	0x351690, 0x592148;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
+	bool menuOpen		:	0x351690, 0x56F9D6;		//0 closed, 1 open
+ 	bool menuSelected	:	0x351690, 0x592180;		//Active during a menu transition if an option was selected with Enter
+	bool menuTransition	:	0x351690, 0x5922F4;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
 }
 
 state("dosbox","GOG")
 {
-    byte loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
-    byte mapID	 		:	0x273014, 0x376F5C;		//1 starting town, 4 goblin cave
-    byte markerID		:	0x273014, 0x376F64;		//+8 from mapID
-    string20 dialogue1		:	0x273014, 0x604038;		//Various descriptions and exclamations
-    string20 dialogue2		:	0x273014, 0x3C95A8;		//Selected text during dialogue
-    string30 interact		:	0x273014, 0x3D3DB8;		//Text that appears for interacting with items
-    uint finalCutscene		: 	0x1709754;			//2155905152 when final cutscene is playing (there might be false positives during loading)
+	byte loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+	byte mapID	 	:	0x273014, 0x376F5C;		//1 starting town, 4 goblin cave
+	byte markerID		:	0x273014, 0x376F64;		//+8 from mapID
+	string20 dialogue1	:	0x273014, 0x604038;		//Various descriptions and exclamations
+	string20 dialogue2	:	0x273014, 0x3C95A8;		//Selected text during dialogue
+	string30 interact	:	0x273014, 0x3D3DB8;		//Text that appears for interacting with items
+	string8 finalCutscene	: 	0x1709898;			//"AH!" when final cutscene is playing
+	
+	byte menuIndex		:	0x273014, 0x3CCBDC;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
+	bool menuOpen		:	0x273014, 0x379678;		//0 closed, 1 open
+	bool menuSelected	:	0x273014, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
+	bool menuTransition	:	0x273014, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
+
 }
 
 state("dosbox","GOG_Original")
 {
-    byte loading		:	0x4B34B4, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
-    byte mapID	 		:	0x4B34B4, 0x376F5C;		//1 starting town, 4 goblin cave
-    byte markerID		:	0x4B34B4, 0x376F64;		//+8 from mapID
-    string20 dialogue1		:	0x4B34B4, 0x604038;		//Various descriptions and exclamations
-    string20 dialogue2		:	0x4B34B4, 0x3C95A8;		//Selected text during dialogue
-    string30 interact		:	0x4B34B4, 0x3D3DB8;		//Text that appears for interacting with items
-    uint finalCutscene		: 	0x1949B40;			//2155905152 when final cutscene is playing (there might be false positives during loading)
+	byte loading		:	0x4B34B4, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+	byte mapID	 	:	0x4B34B4, 0x376F5C;		//1 starting town, 4 goblin cave
+	byte markerID		:	0x4B34B4, 0x376F64;		//+8 from mapID
+	string20 dialogue1	:	0x4B34B4, 0x604038;		//Various descriptions and exclamations
+	string20 dialogue2	:	0x4B34B4, 0x3C95A8;		//Selected text during dialogue
+	string30 interact	:	0x4B34B4, 0x3D3DB8;		//Text that appears for interacting with items
+	string8 finalCutscene	: 	0x1949D20;			//"AH!" when final cutscene is playing
+	
+	byte menuIndex		:	0x4B34B4, 0x3CCBDC;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
+	bool menuOpen		:	0x4B34B4, 0x379678;		//0 closed, 1 open
+	bool menuSelected	:	0x4B34B4, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
+	bool menuTransition	:	0x4B34B4, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
 }
 
 init
@@ -53,7 +69,6 @@ init
 	
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
-	vars.canReset = false;
 }
 
 startup
@@ -68,12 +83,12 @@ startup
 		"LiveSplit | TESARedguard",
 		MessageBoxButtons.YesNo,MessageBoxIcon.Question
 	);
-
-        if (timingMessage == DialogResult.Yes)
-        {
-            timer.CurrentTimingMethod = TimingMethod.GameTime;
-        }
-    }
+		
+	if (timingMessage == DialogResult.Yes)
+	{
+		timer.CurrentTimingMethod = TimingMethod.GameTime;
+	}
+}
 	
 	//Main Splits
 	settings.Add("mainSplits", false, "Main Splits (Experimental)");
@@ -138,9 +153,6 @@ update
 	//avoids false starts when resetting at the beginning
 	if(current.mapID == 255)
 		vars.canStart = true;
-	//avoids resets when first loading game after crash (some crash resets still slip through, not sure)
-	if(old.loading == 0 && current.loading == 128)
-		vars.canReset = true;
 	
 	//use TryParse() to filter out health values and put strings into a comparison variable
 	int num;
@@ -171,16 +183,15 @@ split
 	if (version == "Steam" && !vars.finalSplitFlag && (current.mapID == 30))
 	{
 		if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
-		return ((current.finalCutscene == 85788928) && (current.loading == 128));
+			return ((current.finalCutscene == "AH!") && (current.loading == 128));
 	}
 	else if ((version == "GOG" || version == "GOG_Original") && !vars.finalSplitFlag && (current.mapID == 30))
 	{
 		if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
-		return ((current.finalCutscene == 2155905152) && (current.loading == 128));
+			return ((current.finalCutscene == "AH!") && (current.loading == 128));
 	}
 	else
 	{
-		// print("Current mapID: " + current.mapID.ToString());
 		return(
 				//Cave Exit
 			((old.mapID == 4) &&
@@ -269,9 +280,14 @@ split
 
 reset
 {
-	//RESETS ARE TEMPORARILY DISABLED DUE TO SOME FALSE POSITIVES
-	//resets if mapID is initialized after gameplay has started
-	//return old.mapID != 255 && current.mapID == 255 && vars.canReset;
+	//if menuSelected becomes true and menuTransition doesn't, it means "new" was selected
+	return (
+		current.menuSelected &&
+		!old.menuSelected &&
+		!current.menuTransition &&
+		current.menuIndex == 0 &&
+		current.menuOpen
+	);
 }
 
 onReset
