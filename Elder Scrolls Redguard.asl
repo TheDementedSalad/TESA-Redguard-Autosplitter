@@ -269,8 +269,9 @@ split
 
 reset
 {
+	//RESETS ARE TEMPORARILY DISABLED DUE TO SOME FALSE POSITIVES
 	//resets if mapID is initialized after gameplay has started
-	return old.mapID != 255 && current.mapID == 255 && vars.canReset;
+	//return old.mapID != 255 && current.mapID == 255 && vars.canReset;
 }
 
 onReset
