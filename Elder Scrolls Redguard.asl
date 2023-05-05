@@ -104,7 +104,7 @@ startup
 		settings.SetToolTip("shopSplit", "Splits when the player leaves Gerrick's shop after buying feathers");
 		
 		settings.Add("ferryOutSplit", true, "Ferry Departure", "updatedSplits");
-		settings.SetToolTip("ferryOutSplit", "Splits when the player leaves Gerrick's shop after buying feathers");
+		settings.SetToolTip("ferryOutSplit", "Splits when traveling to N'gasta's island on the ferry");
 		
 		settings.Add("amuletNewSplit", true, "N'Gasta's Amulet", "updatedSplits");
 		settings.SetToolTip("amuletNewSplit", "Splits when the player receives the amulet from N'Gasta");
