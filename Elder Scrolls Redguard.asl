@@ -1,6 +1,9 @@
 //The Elder Scrolls Adventure: Redguard Autosplitter V1.1.0 May 4 2023
 //Script by TheDementedSalad & SabulineHorizon
 
+//Known issues:
+//Loading a previous area after that crosses a loading transition might split additional times
+
 state("dosbox","Steam")
 {
 	byte loading		:	0x351690, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
@@ -82,56 +85,38 @@ startup
 		"Would you like to set the timing method to Game Time?",
 		"LiveSplit | TESARedguard",
 		MessageBoxButtons.YesNo,MessageBoxIcon.Question
-	);
+		);
 		
-	if (timingMessage == DialogResult.Yes)
-	{
-		timer.CurrentTimingMethod = TimingMethod.GameTime;
+		if (timingMessage == DialogResult.Yes)
+		{
+			timer.CurrentTimingMethod = TimingMethod.GameTime;
+		}
 	}
-}
 	
-	//Main Splits
-	settings.Add("mainSplits", false, "Main Splits (Experimental)");
-	settings.SetToolTip("mainSplits", "These have not been tested thoroughly yet, some might not work");
+	//Updated splits
+	settings.Add("updatedSplits", false, "Updated Splits");
+	settings.SetToolTip("updatedSplits", "Newer split options, added to reflect the current state of the run");
 	
-		settings.Add("caveSplit", true, "Cave Exit", "mainSplits");
-		settings.SetToolTip("caveSplit", "This should work but hasn't been fully tested yet");
+		settings.Add("dockSplit", true, "Dock", "updatedSplits");
+		settings.SetToolTip("dockSplit", "Splits when the player regains control after arriving at the dock");
 		
-		settings.Add("amuletSplit", true, "N'Gasta's Amulet", "mainSplits");
-		settings.SetToolTip("amuletSplit", "This should work but hasn't been fully tested yet");
+		settings.Add("shopSplit", true, "Leaving Shop", "updatedSplits");
+		settings.SetToolTip("shopSplit", "Splits when the player leaves Gerrick's shop after buying feathers");
 		
-		settings.Add("deliverySplit", true, "Amulet Delivery", "mainSplits");
-		settings.SetToolTip("deliverySplit", "This should work but hasn't been fully tested yet");
+		settings.Add("ferryOutSplit", true, "Ferry Departure", "updatedSplits");
+		settings.SetToolTip("ferryOutSplit", "Splits when the player leaves Gerrick's shop after buying feathers");
 		
-		settings.Add("escapeSplit", true, "Escape", "mainSplits");
-		settings.SetToolTip("escapeSplit", "This should work but hasn't been fully tested yet");
+		settings.Add("amuletNewSplit", true, "N'Gasta's Amulet", "updatedSplits");
+		settings.SetToolTip("amuletNewSplit", "Splits when the player receives the amulet from N'Gasta");
 		
-		settings.Add("insigniaSplit", true, "League Insignia", "mainSplits");
-		settings.SetToolTip("insigniaSplit", "This should work but hasn't been fully tested yet");
+		settings.Add("ferryInSplit", true, "Ferry Return", "updatedSplits");
+		settings.SetToolTip("ferryInSplit", "Splits when the player returns to the main island");
 		
-		settings.Add("scarabSplit", true, "Scarab Door", "mainSplits");
-		settings.SetToolTip("scarabSplit", "This should work but hasn't been fully tested yet");
+		settings.Add("deliveryNewSplit", true, "Amulet Delivery", "updatedSplits");
+		settings.SetToolTip("deliveryNewSplit", "Splits when delivering the amulet to Richton at the palace");
 		
-		settings.Add("ruinsSplit", true, "Ruins Exit", "mainSplits");
-		settings.SetToolTip("ruinsSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("hideoutSplit", true, "League Hideout", "mainSplits");
-		settings.SetToolTip("hideoutSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("oldQuarterSplit", true, "Old Quarter", "mainSplits");
-		settings.SetToolTip("oldQuarterSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("flaskSplit", true, "Flask of Lillandril", "mainSplits");
-		settings.SetToolTip("flaskSplit", "This should work but hasn't been tested at all yet");
-		
-		settings.Add("soulSplit", true, "Iszara's Soul", "mainSplits");
-		settings.SetToolTip("soulSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("silverKeySplit", true, "Silver Key", "mainSplits");
-		settings.SetToolTip("silverKeySplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("courtyardSplit", true, "Palace Courtyard", "mainSplits");
-		settings.SetToolTip("courtyardSplit", "This should work but hasn't been fully tested yet");
+		settings.Add("keySplit", true, "Silver Palace Key", "updatedSplits");
+		settings.SetToolTip("keySplit", "Splits when collecting the silver palace key");
 		
 	//Additional settings
 	settings.Add("additionalSettings", true, "Additional Settings");
@@ -139,6 +124,49 @@ startup
 	
 		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSettings");
 		settings.SetToolTip("spamFinalSplit", "Once the final split triggers, it will keep triggering until the timer stops in case some splits were missed");
+		
+	//Legacy splits (previously "Main splits")
+	settings.Add("mainSplits", false, "Legacy Splits");
+	settings.SetToolTip("mainSplits", "These are mostly obselete now, but they're still available if you want them");
+	
+		settings.Add("caveSplit", false, "Cave Exit", "mainSplits");
+		settings.SetToolTip("caveSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("amuletSplit", false, "N'Gasta's Amulet", "mainSplits");
+		settings.SetToolTip("amuletSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("deliverySplit", false, "Amulet Delivery", "mainSplits");
+		settings.SetToolTip("deliverySplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("escapeSplit", false, "Escape", "mainSplits");
+		settings.SetToolTip("escapeSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("insigniaSplit", false, "League Insignia", "mainSplits");
+		settings.SetToolTip("insigniaSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("scarabSplit", false, "Scarab Door", "mainSplits");
+		settings.SetToolTip("scarabSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("ruinsSplit", false, "Ruins Exit", "mainSplits");
+		settings.SetToolTip("ruinsSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("hideoutSplit", false, "League Hideout", "mainSplits");
+		settings.SetToolTip("hideoutSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("oldQuarterSplit", false, "Old Quarter", "mainSplits");
+		settings.SetToolTip("oldQuarterSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("flaskSplit", false, "Flask of Lillandril", "mainSplits");
+		settings.SetToolTip("flaskSplit", "This should work but hasn't been tested at all yet");
+		
+		settings.Add("soulSplit", false, "Iszara's Soul", "mainSplits");
+		settings.SetToolTip("soulSplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("silverKeySplit", false, "Silver Key", "mainSplits");
+		settings.SetToolTip("silverKeySplit", "This should work but hasn't been fully tested yet");
+		
+		settings.Add("courtyardSplit", false, "Palace Courtyard", "mainSplits");
+		settings.SetToolTip("courtyardSplit", "This should work but hasn't been fully tested yet");
 }
 
 update
@@ -193,6 +221,55 @@ split
 	else
 	{
 		return(
+			//Newer splits - since the run is shorter now
+			//There are two splits (amuletSplit and deliverySplit) that are duplicated
+			//The duplicates are to avoid confusion for those who just want to check one options list
+			
+				//Docks
+			(((vars.oldInteract == "100%") ||
+			(vars.oldInteract == "text[16]") ||
+			(vars.oldInteract == "SaveGame( 0, Quick Save Game )")) &&
+			(current.interact == "inventory_object_file[18]") &&
+			(current.mapID == 1) &&
+			(current.markerID == 1) &&
+			settings["dockSplit"]) ||
+			
+				//Leaving Gerrick's
+			((old.mapID == 22) &&
+			(current.mapID == 1) &&
+			settings["shopSplit"]) ||
+			
+				//Ferry Departure
+			((current.mapID == 6) &&
+			(old.mapID == 1) &&
+			settings["ferryOutSplit"]) ||
+			
+				//N'Gasta's Amulet
+			(((old.dialogue2 == "I CAN DO THAT") ||			
+			(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
+			(current.dialogue2 == "ISZARA") &&
+			(current.mapID == 6) &&
+			settings["amuletNewSplit"]) ||
+			
+				//Ferry Return
+			((current.mapID == 1) &&
+			(old.mapID == 6) &&
+			settings["ferryInSplit"]) ||
+			
+				//Amulet Delivery
+			((old.mapID == 1) &&
+			(current.mapID == 3) &&
+			(current.markerID == 0) &&
+			settings["deliveryNewSplit"]) ||
+			
+				//Silver Key
+			((vars.oldInteract == "GET KEY") &&
+			(current.interact == "inventory_object_file[79]") &&
+			(current.mapID == 3) &&
+			settings["keySplit"]) ||
+			
+			
+				//Legacy Splits, these are outdated and aren't recommended for Any%
 				//Cave Exit
 			((old.mapID == 4) &&
 			(current.mapID == 1) &&
