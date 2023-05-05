@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter V1.1.0 May 4 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.0 – May 5, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -92,6 +92,10 @@ startup
 			timer.CurrentTimingMethod = TimingMethod.GameTime;
 		}
 	}
+	
+	//Info option, not used as a setting but to display version information
+    settings.Add("Autosplitter Version 1.2.0 – May 5, 2023", false);
+	settings.SetToolTip("Autosplitter Version 1.2.0 – May 5, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
