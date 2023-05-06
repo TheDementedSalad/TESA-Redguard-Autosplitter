@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.0 – May 5, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.1 – May 5, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -70,8 +70,10 @@ init
 			break;
 	}
 	
+	vars.oldInteract = "";
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
+	vars.dockFlag = false;
 }
 
 startup
@@ -94,8 +96,8 @@ startup
 	}
 	
 	//Info option, not used as a setting but to display version information
-    settings.Add("Autosplitter Version 1.2.0 – May 5, 2023", false);
-	settings.SetToolTip("Autosplitter Version 1.2.0 – May 5, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.2.1 – May 5, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.2.1 – May 5, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -186,6 +188,16 @@ update
 	if(current.mapID == 255)
 		vars.canStart = true;
 	
+	//I was getting null reference exceptions on current.interact although I don't know why
+	if(current.interact != null)
+	{
+		//enables dock split after loading
+		if(current.interact.Contains("LoadMap") || current.interact.Contains("LoadGame"))
+		{
+			vars.dockFlag = true;
+		}
+	}
+	
 	//use TryParse() to filter out health values and put strings into a comparison variable
 	int num;
 	if(!int.TryParse(old.interact, out num))
@@ -211,151 +223,156 @@ isLoading
 
 split
 {
-	//Final Split
-	if (version == "Steam" && !vars.finalSplitFlag && (current.mapID == 30))
+	return(
+		//Newer splits - since the run is shorter now
+		//There are two splits (amuletSplit and deliverySplit) that are duplicated
+		//The duplicates are to avoid confusion for those who just want to check one options list
+		
+			//Docks
+		((current.interact == "inventory_object_file[18]") &&
+		(current.mapID == 1) &&
+		(current.markerID == 1) &&
+		vars.dockFlag &&
+		settings["dockSplit"]) ||
+		
+			//Leaving Gerrick's
+		((old.mapID == 22) &&
+		(current.mapID == 1) &&
+		settings["shopSplit"]) ||
+		
+			//Ferry Departure
+		((current.mapID == 6) &&
+		(old.mapID == 1) &&
+		settings["ferryOutSplit"]) ||
+		
+			//N'Gasta's Amulet
+		(((old.dialogue2 == "I CAN DO THAT") ||			
+		(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
+		(current.dialogue2 == "ISZARA") &&
+		(current.mapID == 6) &&
+		settings["amuletNewSplit"]) ||
+		
+			//Ferry Return
+		((current.mapID == 1) &&
+		(old.mapID == 6) &&
+		settings["ferryInSplit"]) ||
+		
+			//Amulet Delivery
+		((old.mapID == 1) &&
+		(current.mapID == 3) &&
+		(current.markerID == 0) &&
+		settings["deliveryNewSplit"]) ||
+		
+			//Silver Key
+		((vars.oldInteract == "GET KEY") &&
+		(current.interact == "inventory_object_file[79]") &&
+		(current.mapID == 3) &&
+		settings["keySplit"]) ||
+		
+		
+			//Legacy Splits, these are outdated and aren't recommended for Any%
+			//Cave Exit
+		((old.mapID == 4) &&
+		(current.mapID == 1) &&
+		(current.markerID == 2) &&
+		settings["caveSplit"]) ||	
+		
+			//N'Gasta's Amulet
+		(((old.dialogue2 == "I CAN DO THAT") ||			
+		(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
+		(current.dialogue2 == "ISZARA") &&
+		(current.mapID == 6) &&
+		settings["amuletSplit"]) ||
+		
+			//Amulet Delivery
+		((old.mapID == 1) &&
+		(current.mapID == 3) &&
+		(current.markerID == 0) &&
+		settings["deliverySplit"]) ||
+		
+			//Escape (split happens after cutscene instead of before)
+		((old.mapID == 2) &&
+		(current.mapID == 1) &&
+		(current.markerID == 45) &&
+		settings["escapeSplit"]) ||
+		
+			//League Insignia
+		(((old.dialogue2 == "SHE WOULD HAVE LIKED") ||
+		(old.dialogue2 == "YOU'RE PUSHING YOUR") ||
+		(old.dialogue2 == "LEAGUE IS GONE") ||
+		(old.dialogue2 == "I DON'T KNOW BASIL")) &&
+		(current.dialogue2 == "ISZARA") &&
+		(current.mapID == 24) &&
+		settings["insigniaSplit"]) ||
+		
+			//Scarab Door
+		((old.mapID == 8) &&
+		(current.mapID == 1) &&
+		(current.markerID == 7) &&
+		settings["scarabSplit"]) ||
+		
+			//Ruins Exit
+		((old.mapID == 8) &&
+		(current.mapID == 1) &&
+		(current.markerID == 44) &&
+		settings["ruinsSplit"]) ||
+		
+			//League Hideout
+		((old.mapID == 1) &&
+		(current.mapID == 17) &&
+		(current.markerID == 6) &&
+		settings["hideoutSplit"]) ||
+		
+			//Old Quarter
+		((old.mapID == 11) &&
+		(current.mapID == 27) &&
+		(current.markerID == 28) &&
+		settings["oldQuarterSplit"]) ||
+		
+			//Flask of Lillandril
+		((old.dialogue1 != current.dialogue1) &&
+		(current.dialogue1 == "IT'S THE MYTHICAL FL") &&
+		settings["flaskSplit"]) ||
+		
+			//Iszara's Soul
+		((current.mapID == 14) &&
+		(old.markerID == 0) &&
+		(current.markerID == 5) &&
+		settings["soulSplit"]) ||
+		
+			//Silver Key
+		((old.interact != current.interact) &&
+		(vars.oldInteract == "GET KEY") &&
+		(current.interact == "inventory_object_file[10]") &&
+		(current.mapID == 2) &&
+		settings["silverKeySplit"]) ||
+		
+			//Palace Courtyard
+		((old.mapID == 1) &&
+		(current.mapID == 30) &&
+		(current.markerID == 8) &&
+		settings["courtyardSplit"]) ||
+		
+			//Final Split
+			//This isn't tied to a group of settings, and should always happen
+		(!vars.finalSplitFlag &&
+		(current.mapID == 30) &&
+		(current.finalCutscene == "AH!") &&
+		(current.loading == 128))
+	);
+}
+
+onSplit
+{
+	vars.dockFlag = false;
+	
+	if(!settings["spamFinalSplit"] &&
+		!vars.finalSplitFlag &&
+		(current.mapID == 30) &&
+		(current.finalCutscene == "AH!") &&
+		(current.loading == 128))
 	{
-		if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
-			return ((current.finalCutscene == "AH!") && (current.loading == 128));
-	}
-	else if ((version == "GOG" || version == "GOG_Original") && !vars.finalSplitFlag && (current.mapID == 30))
-	{
-		if(!settings["spamFinalSplit"]) vars.finalSplitFlag = true;
-			return ((current.finalCutscene == "AH!") && (current.loading == 128));
-	}
-	else
-	{
-		return(
-			//Newer splits - since the run is shorter now
-			//There are two splits (amuletSplit and deliverySplit) that are duplicated
-			//The duplicates are to avoid confusion for those who just want to check one options list
-			
-				//Docks
-			(((vars.oldInteract == "100%") ||
-			(vars.oldInteract == "text[16]") ||
-			(vars.oldInteract == "SaveGame( 0, Quick Save Game )")) &&
-			(current.interact == "inventory_object_file[18]") &&
-			(current.mapID == 1) &&
-			(current.markerID == 1) &&
-			settings["dockSplit"]) ||
-			
-				//Leaving Gerrick's
-			((old.mapID == 22) &&
-			(current.mapID == 1) &&
-			settings["shopSplit"]) ||
-			
-				//Ferry Departure
-			((current.mapID == 6) &&
-			(old.mapID == 1) &&
-			settings["ferryOutSplit"]) ||
-			
-				//N'Gasta's Amulet
-			(((old.dialogue2 == "I CAN DO THAT") ||			
-			(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
-			(current.dialogue2 == "ISZARA") &&
-			(current.mapID == 6) &&
-			settings["amuletNewSplit"]) ||
-			
-				//Ferry Return
-			((current.mapID == 1) &&
-			(old.mapID == 6) &&
-			settings["ferryInSplit"]) ||
-			
-				//Amulet Delivery
-			((old.mapID == 1) &&
-			(current.mapID == 3) &&
-			(current.markerID == 0) &&
-			settings["deliveryNewSplit"]) ||
-			
-				//Silver Key
-			((vars.oldInteract == "GET KEY") &&
-			(current.interact == "inventory_object_file[79]") &&
-			(current.mapID == 3) &&
-			settings["keySplit"]) ||
-			
-			
-				//Legacy Splits, these are outdated and aren't recommended for Any%
-				//Cave Exit
-			((old.mapID == 4) &&
-			(current.mapID == 1) &&
-			(current.markerID == 2) &&
-			settings["caveSplit"]) ||	
-			
-				//N'Gasta's Amulet
-			(((old.dialogue2 == "I CAN DO THAT") ||			
-			(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
-			(current.dialogue2 == "ISZARA") &&
-			(current.mapID == 6) &&
-			settings["amuletSplit"]) ||
-			
-				//Amulet Delivery
-			((old.mapID == 1) &&
-			(current.mapID == 3) &&
-			(current.markerID == 0) &&
-			settings["deliverySplit"]) ||
-			
-				//Escape (split happens after cutscene instead of before)
-			((old.mapID == 2) &&
-			(current.mapID == 1) &&
-			(current.markerID == 45) &&
-			settings["escapeSplit"]) ||
-			
-				//League Insignia
-			(((old.dialogue2 == "SHE WOULD HAVE LIKED") ||
-			(old.dialogue2 == "YOU'RE PUSHING YOUR") ||
-			(old.dialogue2 == "LEAGUE IS GONE") ||
-			(old.dialogue2 == "I DON'T KNOW BASIL")) &&
-			(current.dialogue2 == "ISZARA") &&
-			(current.mapID == 24) &&
-			settings["insigniaSplit"]) ||
-			
-				//Scarab Door
-			((old.mapID == 8) &&
-			(current.mapID == 1) &&
-			(current.markerID == 7) &&
-			settings["scarabSplit"]) ||
-			
-				//Ruins Exit
-			((old.mapID == 8) &&
-			(current.mapID == 1) &&
-			(current.markerID == 44) &&
-			settings["ruinsSplit"]) ||
-			
-				//League Hideout
-			((old.mapID == 1) &&
-			(current.mapID == 17) &&
-			(current.markerID == 6) &&
-			settings["hideoutSplit"]) ||
-			
-				//Old Quarter
-			((old.mapID == 11) &&
-			(current.mapID == 27) &&
-			(current.markerID == 28) &&
-			settings["oldQuarterSplit"]) ||
-			
-				//Flask of Lillandril
-			((old.dialogue1 != current.dialogue1) &&
-			(current.dialogue1 == "IT'S THE MYTHICAL FL") &&
-			settings["flaskSplit"]) ||
-			
-				//Iszara's Soul
-			((current.mapID == 14) &&
-			(old.markerID == 0) &&
-			(current.markerID == 5) &&
-			settings["soulSplit"]) ||
-			
-				//Silver Key
-			((old.interact != current.interact) &&
-			(vars.oldInteract == "GET KEY") &&
-			(current.interact == "inventory_object_file[10]") &&
-			(current.mapID == 2) &&
-			settings["silverKeySplit"]) ||
-			
-				//Palace Courtyard
-			((old.mapID == 1) &&
-			(current.mapID == 30) &&
-			(current.markerID == 8) &&
-			settings["courtyardSplit"])
-		);
+		vars.finalSplitFlag = true;
 	}
 }
 
