@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.1 – May 5, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.2 – May 6, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -96,8 +96,8 @@ startup
 	}
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.2.1 – May 5, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.2.1 – May 5, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.2.2 – May 6, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.2.2 – May 6, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -198,10 +198,8 @@ update
 		}
 	}
 	
-	//use TryParse() to filter out health values and put strings into a comparison variable
-	int num;
-	if(!int.TryParse(old.interact, out num))
-		vars.oldInteract = old.interact;
+	if(current.interact == "GET KEY")
+		vars.oldInteract = current.interact;
 }
 
 start
@@ -365,6 +363,7 @@ split
 onSplit
 {
 	vars.dockFlag = false;
+	vars.oldInteract = "";
 	
 	if(!settings["spamFinalSplit"] &&
 		!vars.finalSplitFlag &&
