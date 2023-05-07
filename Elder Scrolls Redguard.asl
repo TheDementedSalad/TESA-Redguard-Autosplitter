@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.2 – May 6, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.3 – May 6, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -96,8 +96,8 @@ startup
 	}
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.2.2 – May 6, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.2.2 – May 6, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.2.3 – May 6, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.2.3 – May 6, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -123,14 +123,24 @@ startup
 		
 		settings.Add("keySplit", true, "Silver Palace Key", "updatedSplits");
 		settings.SetToolTip("keySplit", "Splits when collecting the silver palace key");
+	
+	//Additional splits
+	settings.Add("additionalSplits", false, "Additional Splits");
+	settings.SetToolTip("additionalSplits", "Additional alternate split options");
+	
+		settings.Add("leavePalaceSplit", false, "Leaving Palace", "additionalSplits");
+		settings.SetToolTip("leavePalaceSplit", "Splits between the palace and the palace courtyard (after the silver key)");
 		
+		settings.Add("enterShopSplit", false, "Entering Shop", "additionalSplits");
+		settings.SetToolTip("enterShopSplit", "Splits when the player enters Gerrick's shop");
+	
 	//Additional settings
 	settings.Add("additionalSettings", true, "Additional Settings");
 	settings.SetToolTip("additionalSettings", "Additional settings");
 	
 		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSettings");
 		settings.SetToolTip("spamFinalSplit", "Once the final split triggers, it will keep triggering until the timer stops in case some splits were missed");
-		
+	
 	//Legacy splits (previously "Main splits")
 	settings.Add("mainSplits", false, "Legacy Splits");
 	settings.SetToolTip("mainSplits", "These are mostly obselete now, but they're still available if you want them");
@@ -267,6 +277,16 @@ split
 		(current.mapID == 3) &&
 		settings["keySplit"]) ||
 		
+			//Additional Splits
+			//Leaving Palace (meant to replace the silver key split that is reportedly unreliable)
+		((old.mapID == 3) &&
+		(current.mapID == 30) &&
+		settings["leavePalaceSplit"]) ||
+			
+			//Entering Gerrick's
+		((old.mapID == 1) &&
+		(current.mapID == 22) &&
+		settings["enterShopSplit"]) ||
 		
 			//Legacy Splits, these are outdated and aren't recommended for Any%
 			//Cave Exit
