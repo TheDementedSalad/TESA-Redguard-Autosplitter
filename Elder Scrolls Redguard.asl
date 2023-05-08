@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.3 – May 6, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.4 – May 7, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -74,6 +74,7 @@ init
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
 	vars.dockFlag = false;
+	vars.pirateFlag = false;
 }
 
 startup
@@ -96,8 +97,8 @@ startup
 	}
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.2.3 – May 6, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.2.3 – May 6, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.2.4 – May 7, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.2.4 – May 7, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -128,11 +129,14 @@ startup
 	settings.Add("additionalSplits", false, "Additional Splits");
 	settings.SetToolTip("additionalSplits", "Additional alternate split options");
 	
-		settings.Add("leavePalaceSplit", false, "Leaving Palace", "additionalSplits");
-		settings.SetToolTip("leavePalaceSplit", "Splits between the palace and the palace courtyard (after the silver key)");
+		settings.Add("afterPirates", false, "After Pirates", "additionalSplits");
+		settings.SetToolTip("afterPirates", "Splits on the first load after fighting the pirates");
 		
 		settings.Add("enterShopSplit", false, "Entering Shop", "additionalSplits");
 		settings.SetToolTip("enterShopSplit", "Splits when the player enters Gerrick's shop");
+		
+		settings.Add("leavePalaceSplit", false, "Leaving Palace", "additionalSplits");
+		settings.SetToolTip("leavePalaceSplit", "Splits between the palace and the palace courtyard (after the silver key)");
 	
 	//Additional settings
 	settings.Add("additionalSettings", true, "Additional Settings");
@@ -222,6 +226,7 @@ onStart
 	//initialize variables
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
+	vars.pirateFlag = true;
 }
 
 isLoading
@@ -287,6 +292,12 @@ split
 		((old.mapID == 1) &&
 		(current.mapID == 22) &&
 		settings["enterShopSplit"]) ||
+			
+			//After Pirates
+		((old.mapID == 0) &&
+		(current.mapID == 1) &&
+		vars.pirateFlag &&
+		settings["afterPirates"]) ||
 		
 			//Legacy Splits, these are outdated and aren't recommended for Any%
 			//Cave Exit
@@ -382,8 +393,9 @@ split
 
 onSplit
 {
-	vars.dockFlag = false;
 	vars.oldInteract = "";
+	vars.pirateFlag = false;
+	vars.dockFlag = false;
 	
 	if(!settings["spamFinalSplit"] &&
 		!vars.finalSplitFlag &&
@@ -410,6 +422,7 @@ reset
 onReset
 {
 	//initialize variables
+	vars.pirateFlag = false;
 	vars.finalSplitFlag = false;
 }
 
