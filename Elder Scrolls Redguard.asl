@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.4 – May 7, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.5 – May 9, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -70,11 +70,13 @@ init
 			break;
 	}
 	
-	vars.oldInteract = "";
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
 	vars.dockFlag = false;
 	vars.pirateFlag = false;
+	vars.normalSilverKeyFlag = false;
+	vars.palaceKeyFlag = false;
+	vars.amuletFlag = false;
 }
 
 startup
@@ -97,8 +99,8 @@ startup
 	}
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.2.4 – May 7, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.2.4 – May 7, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.2.5 – May 9, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.2.5 – May 9, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -122,8 +124,8 @@ startup
 		settings.Add("deliveryNewSplit", true, "Amulet Delivery", "updatedSplits");
 		settings.SetToolTip("deliveryNewSplit", "Splits when delivering the amulet to Richton at the palace");
 		
-		settings.Add("keySplit", true, "Silver Palace Key", "updatedSplits");
-		settings.SetToolTip("keySplit", "Splits when collecting the silver palace key");
+		settings.Add("palaceKeySplit", true, "Silver Palace Key", "updatedSplits");
+		settings.SetToolTip("palaceKeySplit", "Splits when collecting the silver palace key");
 	
 	//Additional splits
 	settings.Add("additionalSplits", false, "Additional Splits");
@@ -205,15 +207,15 @@ update
 	//I was getting null reference exceptions on current.interact although I don't know why
 	if(current.interact != null)
 	{
-		//enables dock split after loading
+		//enables split flags after loading
 		if(current.interact.Contains("LoadMap") || current.interact.Contains("LoadGame"))
 		{
 			vars.dockFlag = true;
+			vars.normalSilverKeyFlag = true;
+			vars.palaceKeyFlag = true;
+			vars.amuletFlag = true;
 		}
 	}
-	
-	if(current.interact == "GET KEY")
-		vars.oldInteract = current.interact;
 }
 
 start
@@ -227,6 +229,9 @@ onStart
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
 	vars.pirateFlag = true;
+	vars.normalSilverKeyFlag = true;
+	vars.palaceKeyFlag = true;
+	vars.amuletFlag = true;
 }
 
 isLoading
@@ -259,10 +264,9 @@ split
 		settings["ferryOutSplit"]) ||
 		
 			//N'Gasta's Amulet
-		(((old.dialogue2 == "I CAN DO THAT") ||			
-		(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
-		(current.dialogue2 == "ISZARA") &&
+		((current.interact == "inventory_object_file[11]") &&
 		(current.mapID == 6) &&
+		vars.amuletFlag &&
 		settings["amuletNewSplit"]) ||
 		
 			//Ferry Return
@@ -276,11 +280,11 @@ split
 		(current.markerID == 0) &&
 		settings["deliveryNewSplit"]) ||
 		
-			//Silver Key
-		((vars.oldInteract == "GET KEY") &&
-		(current.interact == "inventory_object_file[79]") &&
+			//Silver Palace Key
+		((current.interact == "inventory_object_file[79]") &&
 		(current.mapID == 3) &&
-		settings["keySplit"]) ||
+		vars.palaceKeyFlag &&
+		settings["palaceKeySplit"]) ||
 		
 			//Additional Splits
 			//Leaving Palace (meant to replace the silver key split that is reportedly unreliable)
@@ -369,11 +373,10 @@ split
 		(current.markerID == 5) &&
 		settings["soulSplit"]) ||
 		
-			//Silver Key
-		((old.interact != current.interact) &&
-		(vars.oldInteract == "GET KEY") &&
-		(current.interact == "inventory_object_file[10]") &&
+			//Normal Silver Key (Catacombs?)
+		((current.interact == "inventory_object_file[10]") &&
 		(current.mapID == 2) &&
+		vars.normalSilverKeyFlag &&
 		settings["silverKeySplit"]) ||
 		
 			//Palace Courtyard
@@ -393,9 +396,11 @@ split
 
 onSplit
 {
-	vars.oldInteract = "";
 	vars.pirateFlag = false;
 	vars.dockFlag = false;
+	vars.normalSilverKeyFlag = false;
+	vars.palaceKeyFlag = false;
+	vars.amuletFlag = false;
 	
 	if(!settings["spamFinalSplit"] &&
 		!vars.finalSplitFlag &&
