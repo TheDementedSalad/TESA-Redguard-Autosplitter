@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.5 – May 9, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.6 – May 9, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -18,6 +18,7 @@ state("dosbox","Steam")
 	bool menuOpen		:	0x351690, 0x56F9D6;		//0 closed, 1 open
  	bool menuSelected	:	0x351690, 0x592180;		//Active during a menu transition if an option was selected with Enter
 	bool menuTransition	:	0x351690, 0x5922F4;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
+	byte cutsceneIndex	:	0x351690, 0x67A19C;		//0-3 cutscene index, 129 loading started
 }
 
 state("dosbox","GOG")
@@ -34,6 +35,7 @@ state("dosbox","GOG")
 	bool menuOpen		:	0x273014, 0x379678;		//0 closed, 1 open
 	bool menuSelected	:	0x273014, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
 	bool menuTransition	:	0x273014, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
+	byte cutsceneIndex	:	0x273014, 0x5BF06C;		//0-3 cutscene index, 81 loading started
 
 }
 
@@ -51,6 +53,7 @@ state("dosbox","GOG_Original")
 	bool menuOpen		:	0x4B34B4, 0x379678;		//0 closed, 1 open
 	bool menuSelected	:	0x4B34B4, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
 	bool menuTransition	:	0x4B34B4, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
+	byte cutsceneIndex	:	0x4B34B4, 0x5BF06C;		//0-3 cutscene index, 81 loading started
 }
 
 init
@@ -77,6 +80,7 @@ init
 	vars.normalSilverKeyFlag = false;
 	vars.palaceKeyFlag = false;
 	vars.amuletFlag = false;
+	vars.cutsceneIndex = 0;
 }
 
 startup
@@ -99,8 +103,8 @@ startup
 	}
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.2.5 – May 9, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.2.5 – May 9, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.2.6 – May 9, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.2.6 – May 9, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -146,6 +150,9 @@ startup
 	
 		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSettings");
 		settings.SetToolTip("spamFinalSplit", "Once the final split triggers, it will keep triggering until the timer stops in case some splits were missed");
+	
+		settings.Add("redundantReset", true, "Redundant Reset", "additionalSettings");
+		settings.SetToolTip("redundantReset", "The normal reset condition sometimes fails to trigger. This is a backup reset condition in case the other fails");
 	
 	//Legacy splits (previously "Main splits")
 	settings.Add("mainSplits", false, "Legacy Splits");
@@ -201,8 +208,17 @@ update
 	}
 	
 	//avoids false starts when resetting at the beginning
-	if(current.mapID == 255)
+	if(current.mapID == 255 || vars.cutsceneIndex > 2)
 		vars.canStart = true;
+	
+	//alternate reset condition since the current one sometimes fails to trigger
+	if((current.cutsceneIndex == (old.cutsceneIndex + 1)) || (old.cutsceneIndex == 3 && current.cutsceneIndex > 20))
+	{
+		vars.cutsceneIndex++;
+		print(vars.cutsceneIndex.ToString());
+	}
+	else if(current.cutsceneIndex != old.cutsceneIndex)
+		vars.cutsceneIndex = 0;
 	
 	//I was getting null reference exceptions on current.interact although I don't know why
 	if(current.interact != null)
@@ -416,11 +432,14 @@ reset
 {
 	//if menuSelected becomes true and menuTransition doesn't, it means "new" was selected
 	return (
-		current.menuSelected &&
+		(current.menuSelected &&
 		!old.menuSelected &&
 		!current.menuTransition &&
 		current.menuIndex == 0 &&
-		current.menuOpen
+		current.menuOpen) ||
+		
+		(vars.cutsceneIndex == 4 &&
+		settings["redundantReset"])
 	);
 }
 
@@ -429,6 +448,7 @@ onReset
 	//initialize variables
 	vars.pirateFlag = false;
 	vars.finalSplitFlag = false;
+	vars.cutsceneIndex = 0;
 }
 
 exit
