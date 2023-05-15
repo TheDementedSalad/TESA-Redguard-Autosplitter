@@ -184,10 +184,10 @@ startup
 			settings.SetToolTip("removeFerryTime", "Pauses timer while the ferry cutscenes are active");
 			
 			settings.Add("restoreDockingTime", true, "Restore Ship Docking Time", "cutsceneSettings");
-			settings.SetToolTip("restoreDockingTime", "Adds the average docking cutscene time to the timer when the cutscene is finished");
+			settings.SetToolTip("restoreDockingTime", "Adds a set amount of time to the timer when the ship docking cutscene is finished (24.64s)");
 			
 			settings.Add("restoreFerryTime", true, "Restore Ferry Time", "cutsceneSettings");
-			settings.SetToolTip("restoreFerryTime", "Adds the average ferry cutscene time to the timer when the cutscene is finished");
+			settings.SetToolTip("restoreFerryTime", "Adds set amounts of time to the timer when each ferry cutscene is finished (13.59s, 32.32s, 13.74s, 18.32s)");
 	
 	//Legacy splits (previously "Main splits")
 	settings.Add("mainSplits", false, "Legacy Splits");
