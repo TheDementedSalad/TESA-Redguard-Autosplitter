@@ -1,41 +1,47 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.2.6 – May 9, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.0 – May 14, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
 //Loading a previous area after that crosses a loading transition might split additional times
+//The code is a bit of a mess, this was the result of adding features quickly while trying not to disturb legacy behavior
+//	It is probably worth rewriting it to be more streamlined once the moist challenge is over
 
 state("dosbox","Steam")
 {
-	byte loading		:	0x351690, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
-	byte mapID		:	0x351690, 0x573194;		//1 starting town, 4 goblin cave
-	byte markerID		:	0x351690, 0x57319C;		//+8 from mapID
-	string20 dialogue1	:	0x351690, 0x9456;		//Various descriptions and exclamations
-	string20 dialogue2	:	0x351690, 0x589BD4;		//Selected text during dialogue
-	string30 interact	:	0x351690, 0x57B500;		//Text that appears for interacting with items
+	byte loading		:	0x353078, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
+	byte mapID		:	0x353078, 0x573194;		//1 starting town, 4 goblin cave
+	byte markerID		:	0x353078, 0x57319C;		//+8 from mapID
+	string20 dialogue1	:	0x353078, 0x9456;		//Various descriptions and exclamations
+	string20 dialogue2	:	0x353078, 0x589BD4;		//Selected text during dialogue
+	string30 interact	:	0x353078, 0x57B500;		//Text that appears for interacting with items
 	string8 finalCutscene	: 	0x17CEDF0;			//"AH!" when final cutscene is playing
 	
-	byte menuIndex		:	0x351690, 0x592148;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
-	bool menuOpen		:	0x351690, 0x56F9D6;		//0 closed, 1 open
- 	bool menuSelected	:	0x351690, 0x592180;		//Active during a menu transition if an option was selected with Enter
-	bool menuTransition	:	0x351690, 0x5922F4;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
-	byte cutsceneIndex	:	0x351690, 0x67A19C;		//0-3 cutscene index, 129 loading started
+	byte menuIndex		:	0x353078, 0x592148;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
+	bool menuOpen		:	0x353078, 0x56F9D6;		//0 closed, 1 open
+ 	bool menuSelected	:	0x353078, 0x592180;		//Active during a menu transition if an option was selected with Enter
+	bool menuTransition	:	0x353078, 0x5922F4;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
+	byte cutsceneIndex	:	0x353078, 0x67A19C;		//0-3 cutscene index, 129 loading started
+	
+	ushort ferryActive	:	0x353078, 0x57D7B0;		//48640 means ferry cutscene is active
 }
 
 state("dosbox","GOG")
 {
-	byte loading		:	0x273014, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
-	byte mapID	 	:	0x273014, 0x376F5C;		//1 starting town, 4 goblin cave
-	byte markerID		:	0x273014, 0x376F64;		//+8 from mapID
-	string20 dialogue1	:	0x273014, 0x604038;		//Various descriptions and exclamations
-	string20 dialogue2	:	0x273014, 0x3C95A8;		//Selected text during dialogue
-	string30 interact	:	0x273014, 0x3D3DB8;		//Text that appears for interacting with items
+	byte loading		:	0x1C62C30, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
+	byte mapID	 	:	0x1C62C30, 0x376F5C;		//1 starting town, 4 goblin cave
+	byte markerID		:	0x1C62C30, 0x376F64;		//+8 from mapID
+	string20 dialogue1	:	0x1C62C30, 0x604038;		//Various descriptions and exclamations
+	string20 dialogue2	:	0x1C62C30, 0x3C95A8;		//Selected text during dialogue
+	string30 interact	:	0x1C62C30, 0x3D3DB8;		//Text that appears for interacting with items
 	string8 finalCutscene	: 	0x1709898;			//"AH!" when final cutscene is playing
 	
-	byte menuIndex		:	0x273014, 0x3CCBDC;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
-	bool menuOpen		:	0x273014, 0x379678;		//0 closed, 1 open
-	bool menuSelected	:	0x273014, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
-	bool menuTransition	:	0x273014, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
-	byte cutsceneIndex	:	0x273014, 0x5BF06C;		//0-3 cutscene index, 81 loading started
+	byte menuIndex		:	0x1C62C30, 0x3CCBDC;		//0 main menu, 1 save, 2 load, 3 movies, 4 options, 5 display,6 sound, 7 controls
+	bool menuOpen		:	0x1C62C30, 0x379678;		//0 closed, 1 open
+	bool menuSelected	:	0x1C62C30, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
+	bool menuTransition	:	0x1C62C30, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
+	byte cutsceneIndex	:	0x1C62C30, 0x5BF06C;		//0-3 cutscene index, 81 loading started
+	
+	ushort ferryActive	:	0x1C62C30, 0x3B1988;		//48640 means ferry cutscene is active
 
 }
 
@@ -54,6 +60,8 @@ state("dosbox","GOG_Original")
 	bool menuSelected	:	0x4B34B4, 0x3CCC10;		//Active during a menu transition if an option was selected with Enter
 	bool menuTransition	:	0x4B34B4, 0x3CCD84;		//Active during all menu transitions (but not when selecting NEW) even if Esc was used
 	byte cutsceneIndex	:	0x4B34B4, 0x5BF06C;		//0-3 cutscene index, 81 loading started
+	
+	ushort ferryActive	:	0x4B34B4, 0x3B1988;		//48640 means ferry cutscene is active
 }
 
 init
@@ -73,10 +81,13 @@ init
 			break;
 	}
 	
+	vars.interact = false;
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
 	vars.dockFlag = false;
+	vars.postDockFlag = false;
 	vars.pirateFlag = false;
+	vars.ferryLoadingFlag = false;
 	vars.normalSilverKeyFlag = false;
 	vars.palaceKeyFlag = false;
 	vars.amuletFlag = false;
@@ -102,9 +113,17 @@ startup
 		}
 	}
 	
+	//Set cutscene times (in seconds) to replace the time that was removed
+	//Data used was the fastest time for each cutscene from Joenome's testing, rounded up to 2 decimals
+	vars.shipDocking = 24.64;
+	vars.ferryDepartA = 13.59;
+	vars.ferryDepartB = 32.32;
+	vars.ferryReturnA = 13.74;
+	vars.ferryReturnB = 18.32;
+	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.2.6 – May 9, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.2.6 – May 9, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.3.0 – May 14, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.3.0 – May 14, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -150,9 +169,25 @@ startup
 	
 		settings.Add("spamFinalSplit", true, "Spam Final Split", "additionalSettings");
 		settings.SetToolTip("spamFinalSplit", "Once the final split triggers, it will keep triggering until the timer stops in case some splits were missed");
-	
+		
 		settings.Add("redundantReset", true, "Redundant Reset", "additionalSettings");
 		settings.SetToolTip("redundantReset", "The normal reset condition sometimes fails to trigger. This is a backup reset condition in case the other fails");
+		
+		//Cutscene removal settings
+		settings.Add("cutsceneSettings", true, "Cutscene Settings", "additionalSettings");
+		settings.SetToolTip("cutsceneSettings", "Settings to balance the variation in cutscene time across runs");
+		
+			settings.Add("removeDockingTime", true, "Remove Ship Docking Time", "cutsceneSettings");
+			settings.SetToolTip("removeDockingTime", "Pauses timer while the ship docking cutscene is active");
+			
+			settings.Add("removeFerryTime", true, "Remove Ferry Time", "cutsceneSettings");
+			settings.SetToolTip("removeFerryTime", "Pauses timer while the ferry cutscenes are active");
+			
+			settings.Add("restoreDockingTime", true, "Restore Ship Docking Time", "cutsceneSettings");
+			settings.SetToolTip("restoreDockingTime", "Adds the average docking cutscene time to the timer when the cutscene is finished");
+			
+			settings.Add("restoreFerryTime", true, "Restore Ferry Time", "cutsceneSettings");
+			settings.SetToolTip("restoreFerryTime", "Adds the average ferry cutscene time to the timer when the cutscene is finished");
 	
 	//Legacy splits (previously "Main splits")
 	settings.Add("mainSplits", false, "Legacy Splits");
@@ -215,7 +250,7 @@ update
 	if((current.cutsceneIndex == (old.cutsceneIndex + 1)) || (old.cutsceneIndex == 3 && current.cutsceneIndex > 20))
 	{
 		vars.cutsceneIndex++;
-		print(vars.cutsceneIndex.ToString());
+		// print(vars.cutsceneIndex.ToString());
 	}
 	else if(current.cutsceneIndex != old.cutsceneIndex)
 		vars.cutsceneIndex = 0;
@@ -223,15 +258,28 @@ update
 	//I was getting null reference exceptions on current.interact although I don't know why
 	if(current.interact != null)
 	{
-		//enables split flags after loading
-		if(current.interact.Contains("LoadMap") || current.interact.Contains("LoadGame"))
-		{
-			vars.dockFlag = true;
-			vars.normalSilverKeyFlag = true;
-			vars.palaceKeyFlag = true;
-			vars.amuletFlag = true;
-		}
+		vars.interact = current.interact;
 	}
+	
+	//enables split flags after loading
+	if(vars.interact.Contains("LoadMap") || vars.interact.Contains("LoadGame"))
+	{
+		vars.dockFlag = true;
+		vars.normalSilverKeyFlag = true;
+		vars.palaceKeyFlag = true;
+		vars.amuletFlag = true;
+	}
+	
+	//Set a flag to remove time between when loading finishes and when ferryActive is initialized
+	//If loading start while ferry cutscene was active
+	if(current.loading == 0 && old.ferryActive == 48640)
+		vars.ferryLoadingFlag = true;
+	//Else if game is active and ferry ctuscene isn't active, restore flag to false
+	else if((current.loading != 0) && (current.ferryActive == 48640) || vars.interact.Contains("LoadGame"))
+	// else if((current.loading != 0) && (current.ferryActive == 48640))
+		vars.ferryLoadingFlag = false;
+	
+	// print(vars.postDockFlag.ToString());
 }
 
 start
@@ -244,7 +292,9 @@ onStart
 	//initialize variables
 	vars.finalSplitFlag = false;
 	vars.canStart = false;
+	vars.postDockFlag = false;
 	vars.pirateFlag = true;
+	vars.ferryLoadingFlag = false;
 	vars.normalSilverKeyFlag = true;
 	vars.palaceKeyFlag = true;
 	vars.amuletFlag = true;
@@ -252,7 +302,65 @@ onStart
 
 isLoading
 {
-	return current.loading == 0;
+	return(
+		current.loading == 0 ||
+		
+		//Pause timer during ship docking cutscene
+		(settings["removeDockingTime"] &&
+		(current.mapID == 1) &&
+		(current.markerID == 1) &&
+		!vars.postDockFlag) ||
+		
+		//Pause timer during ferry cutscene
+		(settings["removeFerryTime"] &&
+		((current.ferryActive == 48640) ||
+		vars.ferryLoadingFlag))
+	);
+}
+
+gameTime
+{
+	//If ship arrives in dock, add ship docking cutscene time
+	if((current.interact == "inventory_object_file[18]") &&
+		(current.mapID == 1) &&
+		(current.markerID == 1) &&
+		vars.dockFlag &&
+		!vars.postDockFlag)
+	{
+		vars.postDockFlag = true;
+		if(settings["removeDockingTime"])
+			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.shipDocking)); //30s
+	}
+	//If ferry leaves from main island and loading starts, add ferryDepartureA time
+	else if((old.ferryActive == 48640) &&
+		(old.loading == 128) &&
+		(current.loading == 0) &&
+		(old.mapID == 1) &&
+		settings["restoreFerryTime"])
+			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryDepartA)); //1m
+	//If ferry arrives at necro island, add ferryDepartureB time
+	else if((old.ferryActive == 48640) &&
+		(current.ferryActive != 48640) &&
+		(current.loading == 128) &&
+		(current.mapID == 6) &&
+		settings["restoreFerryTime"])
+			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryDepartB)); //2m
+	//If ferry leaves from necro island and loading starts, add ferryReturnA time
+	else if((old.ferryActive == 48640) &&
+		(old.loading == 128) &&
+		(current.loading == 0) &&
+		(old.mapID == 6) &&
+		settings["restoreFerryTime"])
+			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryReturnA)); //5m
+	//If ferry arrives at main island, add ferryReturnB time
+	else if((old.ferryActive == 48640) &&
+		(current.ferryActive != 48640) &&
+		(current.loading == 128) &&
+		(current.mapID == 1) &&
+		settings["restoreFerryTime"])
+			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryReturnB)); //10m
+	else
+		return null;
 }
 
 split
@@ -447,6 +555,8 @@ onReset
 {
 	//initialize variables
 	vars.pirateFlag = false;
+	vars.postDockFlag = false;
+	vars.ferryLoadingFlag = false;
 	vars.finalSplitFlag = false;
 	vars.cutsceneIndex = 0;
 }
