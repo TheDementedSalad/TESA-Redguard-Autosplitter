@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.1 – May 14, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.2 – May 15, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -124,8 +124,8 @@ startup
 	vars.ferryReturnB = 18.32;
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.3.1 – May 14, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.3.1 – May 14, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.3.2 – May 15, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.3.2 – May 15, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -325,14 +325,18 @@ isLoading
 gameTime
 {
 	//Check ferryActive for 20? ticks in a row, and if it's equal to 48640 the whole time, then set vars.addTimeFlag
-	if(current.ferryActive == 48640)
+	if((current.ferryActive == 48640) && (current.loading == 128))
 	{
 		vars.addTimeIndex++;
 		if (vars.addTimeIndex > 100)
 			vars.addTimeFlag = true;
 	}
 	else
+	{
 		vars.addTimeIndex = 0;
+		if(old.loading == 0)
+			vars.addTimeFlag = false;
+	}
 	
 	//If ship arrives in dock, add ship docking cutscene time
 	if((current.interact == "inventory_object_file[18]") &&
