@@ -1,4 +1,4 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.0 – May 14, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.1 – May 14, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
@@ -92,6 +92,8 @@ init
 	vars.palaceKeyFlag = false;
 	vars.amuletFlag = false;
 	vars.cutsceneIndex = 0;
+	vars.addTimeFlag = false;
+	vars.addTimeIndex = 0;
 }
 
 startup
@@ -122,8 +124,8 @@ startup
 	vars.ferryReturnB = 18.32;
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.3.0 – May 14, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.3.0 – May 14, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.3.1 – May 14, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.3.1 – May 14, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -298,6 +300,8 @@ onStart
 	vars.normalSilverKeyFlag = true;
 	vars.palaceKeyFlag = true;
 	vars.amuletFlag = true;
+	vars.addTimeFlag = false;
+	vars.addTimeIndex = 0;
 }
 
 isLoading
@@ -320,6 +324,16 @@ isLoading
 
 gameTime
 {
+	//Check ferryActive for 20? ticks in a row, and if it's equal to 48640 the whole time, then set vars.addTimeFlag
+	if(current.ferryActive == 48640)
+	{
+		vars.addTimeIndex++;
+		if (vars.addTimeIndex > 100)
+			vars.addTimeFlag = true;
+	}
+	else
+		vars.addTimeIndex = 0;
+	
 	//If ship arrives in dock, add ship docking cutscene time
 	if((current.interact == "inventory_object_file[18]") &&
 		(current.mapID == 1) &&
@@ -336,29 +350,45 @@ gameTime
 		(old.loading == 128) &&
 		(current.loading == 0) &&
 		(old.mapID == 1) &&
+		vars.addTimeFlag &&
 		settings["restoreFerryTime"])
+		{
+			vars.addTimeFlag = false;
 			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryDepartA)); //1m
+		}
 	//If ferry arrives at necro island, add ferryDepartureB time
 	else if((old.ferryActive == 48640) &&
 		(current.ferryActive != 48640) &&
 		(current.loading == 128) &&
 		(current.mapID == 6) &&
+		vars.addTimeFlag &&
 		settings["restoreFerryTime"])
+		{
+			vars.addTimeFlag = false;
 			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryDepartB)); //2m
+		}
 	//If ferry leaves from necro island and loading starts, add ferryReturnA time
 	else if((old.ferryActive == 48640) &&
 		(old.loading == 128) &&
 		(current.loading == 0) &&
 		(old.mapID == 6) &&
+		vars.addTimeFlag &&
 		settings["restoreFerryTime"])
+		{
+			vars.addTimeFlag = false;
 			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryReturnA)); //5m
+		}
 	//If ferry arrives at main island, add ferryReturnB time
 	else if((old.ferryActive == 48640) &&
 		(current.ferryActive != 48640) &&
 		(current.loading == 128) &&
 		(current.mapID == 1) &&
+		vars.addTimeFlag &&
 		settings["restoreFerryTime"])
+		{
+			vars.addTimeFlag = false;
 			return timer.CurrentTime.GameTime.Value.Add(TimeSpan.FromSeconds(vars.ferryReturnB)); //10m
+		}
 	else
 		return null;
 }
@@ -559,6 +589,8 @@ onReset
 	vars.ferryLoadingFlag = false;
 	vars.finalSplitFlag = false;
 	vars.cutsceneIndex = 0;
+	vars.addTimeFlag = false;
+	vars.addTimeIndex = 0;
 }
 
 exit
