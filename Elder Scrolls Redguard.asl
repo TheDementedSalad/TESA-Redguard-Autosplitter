@@ -1,18 +1,14 @@
-//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.2 – May 15, 2023
+//The Elder Scrolls Adventure: Redguard Autosplitter Version 1.3.3 – May 15, 2023
 //Script by TheDementedSalad & SabulineHorizon
 
 //Known issues:
 //Loading a previous area after that crosses a loading transition might split additional times
-//The code is a bit of a mess, this was the result of adding features quickly while trying not to disturb legacy behavior
-//	It is probably worth rewriting it to be more streamlined once the moist challenge is over
 
 state("dosbox","Steam")
 {
 	byte loading		:	0x353078, 0x57B401;		//0 loading, 128 not loading (pre-game until start is also 0)
 	byte mapID		:	0x353078, 0x573194;		//1 starting town, 4 goblin cave
 	byte markerID		:	0x353078, 0x57319C;		//+8 from mapID
-	string20 dialogue1	:	0x353078, 0x9456;		//Various descriptions and exclamations
-	string20 dialogue2	:	0x353078, 0x589BD4;		//Selected text during dialogue
 	string30 interact	:	0x353078, 0x57B500;		//Text that appears for interacting with items
 	string8 finalCutscene	: 	0x17CEDF0;			//"AH!" when final cutscene is playing
 	
@@ -30,8 +26,6 @@ state("dosbox","GOG")
 	byte loading		:	0x1C62C30, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
 	byte mapID	 	:	0x1C62C30, 0x376F5C;		//1 starting town, 4 goblin cave
 	byte markerID		:	0x1C62C30, 0x376F64;		//+8 from mapID
-	string20 dialogue1	:	0x1C62C30, 0x604038;		//Various descriptions and exclamations
-	string20 dialogue2	:	0x1C62C30, 0x3C95A8;		//Selected text during dialogue
 	string30 interact	:	0x1C62C30, 0x3D3DB8;		//Text that appears for interacting with items
 	string8 finalCutscene	: 	0x1709898;			//"AH!" when final cutscene is playing
 	
@@ -50,8 +44,6 @@ state("dosbox","GOG_Original")
 	byte loading		:	0x4B34B4, 0x3C9F3D;		//0 loading, 128 not loading (pre-game until start is also 0)
 	byte mapID	 	:	0x4B34B4, 0x376F5C;		//1 starting town, 4 goblin cave
 	byte markerID		:	0x4B34B4, 0x376F64;		//+8 from mapID
-	string20 dialogue1	:	0x4B34B4, 0x604038;		//Various descriptions and exclamations
-	string20 dialogue2	:	0x4B34B4, 0x3C95A8;		//Selected text during dialogue
 	string30 interact	:	0x4B34B4, 0x3D3DB8;		//Text that appears for interacting with items
 	string8 finalCutscene	: 	0x1949D20;			//"AH!" when final cutscene is playing
 	
@@ -88,7 +80,6 @@ init
 	vars.postDockFlag = false;
 	vars.pirateFlag = false;
 	vars.ferryLoadingFlag = false;
-	vars.normalSilverKeyFlag = false;
 	vars.palaceKeyFlag = false;
 	vars.amuletFlag = false;
 	vars.cutsceneIndex = 0;
@@ -124,8 +115,8 @@ startup
 	vars.ferryReturnB = 18.32;
 	
 	//Info option, not used as a setting but to display version information
-	settings.Add("Autosplitter Version 1.3.2 – May 15, 2023", false);
-		settings.SetToolTip("Autosplitter Version 1.3.2 – May 15, 2023", "This setting is only here for information, it has no effect on the timer/splits");
+	settings.Add("Autosplitter Version 1.3.3 – May 15, 2023", false);
+		settings.SetToolTip("Autosplitter Version 1.3.3 – May 15, 2023", "This setting is only here for information, it has no effect on the timer/splits");
 	
 	//Updated splits
 	settings.Add("updatedSplits", false, "Updated Splits");
@@ -190,49 +181,6 @@ startup
 			
 			settings.Add("restoreFerryTime", true, "Restore Ferry Time", "cutsceneSettings");
 			settings.SetToolTip("restoreFerryTime", "Adds set amounts of time to the timer when each ferry cutscene is finished (13.59s, 32.32s, 13.74s, 18.32s)");
-	
-	//Legacy splits (previously "Main splits")
-	settings.Add("mainSplits", false, "Legacy Splits");
-	settings.SetToolTip("mainSplits", "These are mostly obselete now, but they're still available if you want them");
-	
-		settings.Add("caveSplit", false, "Cave Exit", "mainSplits");
-		settings.SetToolTip("caveSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("amuletSplit", false, "N'Gasta's Amulet", "mainSplits");
-		settings.SetToolTip("amuletSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("deliverySplit", false, "Amulet Delivery", "mainSplits");
-		settings.SetToolTip("deliverySplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("escapeSplit", false, "Escape", "mainSplits");
-		settings.SetToolTip("escapeSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("insigniaSplit", false, "League Insignia", "mainSplits");
-		settings.SetToolTip("insigniaSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("scarabSplit", false, "Scarab Door", "mainSplits");
-		settings.SetToolTip("scarabSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("ruinsSplit", false, "Ruins Exit", "mainSplits");
-		settings.SetToolTip("ruinsSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("hideoutSplit", false, "League Hideout", "mainSplits");
-		settings.SetToolTip("hideoutSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("oldQuarterSplit", false, "Old Quarter", "mainSplits");
-		settings.SetToolTip("oldQuarterSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("flaskSplit", false, "Flask of Lillandril", "mainSplits");
-		settings.SetToolTip("flaskSplit", "This should work but hasn't been tested at all yet");
-		
-		settings.Add("soulSplit", false, "Iszara's Soul", "mainSplits");
-		settings.SetToolTip("soulSplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("silverKeySplit", false, "Silver Key", "mainSplits");
-		settings.SetToolTip("silverKeySplit", "This should work but hasn't been fully tested yet");
-		
-		settings.Add("courtyardSplit", false, "Palace Courtyard", "mainSplits");
-		settings.SetToolTip("courtyardSplit", "This should work but hasn't been fully tested yet");
 }
 
 update
@@ -267,7 +215,6 @@ update
 	if(vars.interact.Contains("LoadMap") || vars.interact.Contains("LoadGame"))
 	{
 		vars.dockFlag = true;
-		vars.normalSilverKeyFlag = true;
 		vars.palaceKeyFlag = true;
 		vars.amuletFlag = true;
 	}
@@ -297,7 +244,6 @@ onStart
 	vars.postDockFlag = false;
 	vars.pirateFlag = true;
 	vars.ferryLoadingFlag = false;
-	vars.normalSilverKeyFlag = true;
 	vars.palaceKeyFlag = true;
 	vars.amuletFlag = true;
 	vars.addTimeFlag = false;
@@ -401,8 +347,6 @@ split
 {
 	return(
 		//Newer splits - since the run is shorter now
-		//There are two splits (amuletSplit and deliverySplit) that are duplicated
-		//The duplicates are to avoid confusion for those who just want to check one options list
 		
 			//Docks
 		((current.interact == "inventory_object_file[18]") &&
@@ -461,88 +405,6 @@ split
 		vars.pirateFlag &&
 		settings["afterPirates"]) ||
 		
-			//Legacy Splits, these are outdated and aren't recommended for Any%
-			//Cave Exit
-		((old.mapID == 4) &&
-		(current.mapID == 1) &&
-		(current.markerID == 2) &&
-		settings["caveSplit"]) ||	
-		
-			//N'Gasta's Amulet
-		(((old.dialogue2 == "I CAN DO THAT") ||			
-		(old.dialogue2 == "I'LL DELIVER THE AMU")) &&
-		(current.dialogue2 == "ISZARA") &&
-		(current.mapID == 6) &&
-		settings["amuletSplit"]) ||
-		
-			//Amulet Delivery
-		((old.mapID == 1) &&
-		(current.mapID == 3) &&
-		(current.markerID == 0) &&
-		settings["deliverySplit"]) ||
-		
-			//Escape (split happens after cutscene instead of before)
-		((old.mapID == 2) &&
-		(current.mapID == 1) &&
-		(current.markerID == 45) &&
-		settings["escapeSplit"]) ||
-		
-			//League Insignia
-		(((old.dialogue2 == "SHE WOULD HAVE LIKED") ||
-		(old.dialogue2 == "YOU'RE PUSHING YOUR") ||
-		(old.dialogue2 == "LEAGUE IS GONE") ||
-		(old.dialogue2 == "I DON'T KNOW BASIL")) &&
-		(current.dialogue2 == "ISZARA") &&
-		(current.mapID == 24) &&
-		settings["insigniaSplit"]) ||
-		
-			//Scarab Door
-		((old.mapID == 8) &&
-		(current.mapID == 1) &&
-		(current.markerID == 7) &&
-		settings["scarabSplit"]) ||
-		
-			//Ruins Exit
-		((old.mapID == 8) &&
-		(current.mapID == 1) &&
-		(current.markerID == 44) &&
-		settings["ruinsSplit"]) ||
-		
-			//League Hideout
-		((old.mapID == 1) &&
-		(current.mapID == 17) &&
-		(current.markerID == 6) &&
-		settings["hideoutSplit"]) ||
-		
-			//Old Quarter
-		((old.mapID == 11) &&
-		(current.mapID == 27) &&
-		(current.markerID == 28) &&
-		settings["oldQuarterSplit"]) ||
-		
-			//Flask of Lillandril
-		((old.dialogue1 != current.dialogue1) &&
-		(current.dialogue1 == "IT'S THE MYTHICAL FL") &&
-		settings["flaskSplit"]) ||
-		
-			//Iszara's Soul
-		((current.mapID == 14) &&
-		(old.markerID == 0) &&
-		(current.markerID == 5) &&
-		settings["soulSplit"]) ||
-		
-			//Normal Silver Key (Catacombs?)
-		((current.interact == "inventory_object_file[10]") &&
-		(current.mapID == 2) &&
-		vars.normalSilverKeyFlag &&
-		settings["silverKeySplit"]) ||
-		
-			//Palace Courtyard
-		((old.mapID == 1) &&
-		(current.mapID == 30) &&
-		(current.markerID == 8) &&
-		settings["courtyardSplit"]) ||
-		
 			//Final Split
 			//This isn't tied to a group of settings, and should always happen
 		(!vars.finalSplitFlag &&
@@ -556,7 +418,6 @@ onSplit
 {
 	vars.pirateFlag = false;
 	vars.dockFlag = false;
-	vars.normalSilverKeyFlag = false;
 	vars.palaceKeyFlag = false;
 	vars.amuletFlag = false;
 	
